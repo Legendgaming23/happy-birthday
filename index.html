@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday My Rasmalai 🌸</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Dancing+Script:wght@600;700&family=Lora:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --gold: #f0c060; }
+
+    html, body { height: 100%; font-family: 'Lora', serif; }
+
+    body {
+      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f48fb1 60%, #e57399 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .bg-blur {
+      position: fixed; inset: 0; z-index: 0;
+      backdrop-filter: blur(6px) saturate(1.3);
+      background: linear-gradient(160deg,rgba(255,200,220,0.55)0%,rgba(255,150,180,0.45)50%,rgba(200,80,120,0.4)100%);
+      pointer-events: none;
+    }
+
+    canvas#petals { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+    /* ════ PAGE SYSTEM ════ */
+    .app-page {
+      position: relative; z-index: 10;
+      display: none; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+    .app-page.active { display: flex; }
+    .app-page.slide-in   { animation: slideInRight 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+    .app-page.slide-back { animation: slideInLeft  0.55s cubic-bezier(0.22,1,0.36,1) both; }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes slideInLeft  { from{opacity:0;transform:translateX(-60px)} to{opacity:1;transform:translateX(0)} }
+
+    /* ════ SHARED ════ */
+    .shimmer-line {
+      width:180px; height:2px;
+      background: linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin-bottom:18px; animation: shimmer 2.5s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:.4;transform:scaleX(.7)} 50%{opacity:1;transform:scaleX(1.1)} }
+    .back-btn {
+      padding:12px 36px; font-family:'Lora',serif; font-size:1rem;
+      color:rgba(255,255,255,.85); background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.38); border-radius:60px; cursor:pointer;
+      letter-spacing:.04em; transition:background .18s,transform .18s; margin-bottom:56px;
+    }
+    .back-btn:hover { background:rgba(255,255,255,.25); transform:translateY(-2px); }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes pulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+    @keyframes bob    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* ════ PAGE 1 — BIRTHDAY ════ */
+    .sticky-header {
+      position:sticky; top:0; z-index:30; width:100%;
+      display:flex; flex-direction:column; align-items:center;
+      padding:32px 24px 24px;
+      background:linear-gradient(to bottom,rgba(220,90,140,.82)70%,rgba(220,90,140,0)100%);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    }
+    .headline {
+      font-family:'Playfair Display',serif; font-weight:900;
+      font-size:clamp(2.6rem,8.5vw,6.5rem); text-align:center; line-height:1.1; color:#fff;
+      text-shadow:0 2px 4px rgba(150,30,70,.35),0 8px 32px rgba(190,50,100,.3),0 0 80px rgba(255,180,210,.5);
+      animation:fadeDown 1.2s cubic-bezier(.22,1,.36,1) both;
+    }
+    .headline em { font-style:italic; color:var(--gold); text-shadow:0 2px 4px rgba(180,100,10,.35),0 0 40px rgba(240,190,80,.5); }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
+
+    .scroll-body { width:100%; display:flex; flex-direction:column; align-items:center; padding:0 24px 80px; }
+    .scroll-hint {
+      margin:10px 0 28px; display:flex; flex-direction:column; align-items:center; gap:4px;
+      font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.65);
+      animation:fadeIn 2s 1.4s both;
+    }
+    .scroll-hint .arrow { font-size:1.2rem; animation:bob 1.6s ease-in-out infinite; }
+    .crown { font-size:2.4rem; margin-bottom:8px; animation:pulse 2s ease-in-out infinite; filter:drop-shadow(0 2px 8px rgba(240,190,80,.6)); }
+    .flowers-row { font-size:1.8rem; letter-spacing:6px; margin-bottom:32px; animation:fadeIn 1.8s .5s both; }
+    .card {
+      background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.42);
+      border-radius:28px; backdrop-filter:blur(18px) saturate(1.4);
+      padding:44px 40px 48px; max-width:620px; width:100%; text-align:center;
+      box-shadow:0 8px 40px rgba(180,50,90,.18),0 1px 0 rgba(255,255,255,.5) inset;
+      animation:fadeIn 1.5s .4s both;
+    }
+    .card-icon { font-size:3rem; display:block; margin-bottom:18px; }
+    .card p { font-size:clamp(1rem,2.4vw,1.18rem); line-height:1.9; color:rgba(255,255,255,.93); text-shadow:0 1px 4px rgba(120,20,60,.2); margin-bottom:18px; }
+    .card p:last-child { margin-bottom:0; }
+    .card .signature { margin-top:28px; font-style:italic; font-size:1.1rem; color:var(--gold); text-shadow:0 1px 6px rgba(200,120,20,.3); letter-spacing:.03em; }
+    .hearts { margin-top:40px; font-size:1.5rem; letter-spacing:10px; animation:floatY 3s ease-in-out infinite; }
+    .presents-btn {
+      margin-top:48px; padding:18px 48px;
+      font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:700; color:#fff;
+      background:linear-gradient(135deg,#e05585 0%,#c0396a 100%);
+      border:2px solid rgba(255,255,255,.45); border-radius:60px; cursor:pointer;
+      letter-spacing:.04em; box-shadow:0 6px 28px rgba(180,40,90,.38),0 1px 0 rgba(255,255,255,.35) inset;
+      transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+      animation:fadeIn 1.4s .6s both; position:relative; overflow:hidden;
+    }
+    .presents-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 60%); border-radius:inherit; pointer-events:none; }
+    .presents-btn:hover { transform:translateY(-3px) scale(1.04); box-shadow:0 12px 36px rgba(180,40,90,.48),0 1px 0 rgba(255,255,255,.35) inset; background:linear-gradient(135deg,#ec6699 0%,#d04478 100%); }
+    .presents-btn:active { transform:scale(.97); }
+
+    /* ════ PAGE 2 — PRESENTS ════ */
+    .presents-header { width:100%; display:flex; flex-direction:column; align-items:center; padding:52px 24px 16px; }
+    .presents-title {
+      font-family:'Playfair Display',serif; font-weight:900; font-size:clamp(2.2rem,7vw,5rem);
+      color:#fff; text-align:center; text-shadow:0 2px 4px rgba(150,30,70,.35),0 8px 32px rgba(190,50,100,.3); margin-bottom:8px;
+    }
+    .presents-sub { font-size:1rem; color:rgba(255,255,255,.7); letter-spacing:.06em; margin-bottom:48px; }
+    .presents-grid { display:flex; flex-wrap:wrap; gap:32px; justify-content:center; padding:0 24px 40px; width:100%; }
+    .present-card {
+      background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.42); border-radius:32px;
+      backdrop-filter:blur(18px) saturate(1.4); padding:48px 40px 44px;
+      width:clamp(260px,40vw,320px); display:flex; flex-direction:column; align-items:center; gap:18px;
+      box-shadow:0 8px 40px rgba(180,50,90,.18),0 1px 0 rgba(255,255,255,.5) inset;
+      cursor:pointer; transition:transform .22s ease,box-shadow .22s ease;
+      animation:fadeIn .7s ease both;
+    }
+    .present-card:nth-child(1){animation-delay:.1s} .present-card:nth-child(2){animation-delay:.28s}
+    .present-card:hover { transform:translateY(-8px) scale(1.04); box-shadow:0 18px 50px rgba(180,50,90,.28),0 1px 0 rgba(255,255,255,.5) inset; }
+    .present-card:active { transform:scale(.97); }
+    .present-emoji { font-size:6rem; line-height:1; filter:drop-shadow(0 6px 18px rgba(180,50,90,.3)); animation:floatY 3s ease-in-out infinite; }
+    .present-card:nth-child(2) .present-emoji { animation-delay:-1.5s; }
+    .present-label { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#fff; text-shadow:0 2px 8px rgba(150,30,70,.3); letter-spacing:.02em; }
+    .present-tap { font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.6); }
+
+    /* ════ PAGE 3 — LOVE LETTER ════ */
+    .letter-top-border { width:100%; height:6px; background:linear-gradient(90deg,transparent,var(--gold),#f7a8c4,var(--gold),transparent); animation:shimmer 3s ease-in-out infinite; }
+    .letter-wrap { width:100%; max-width:680px; padding:0 24px 80px; display:flex; flex-direction:column; align-items:center; }
+    .letter-salutation {
+      font-family:'Dancing Script',cursive; font-size:clamp(3rem,10vw,6.5rem); font-weight:700;
+      color:#fff; text-align:center; text-shadow:0 2px 8px rgba(150,30,70,.4),0 0 60px rgba(255,180,210,.5);
+      line-height:1.15; margin:52px 0 10px; animation:fadeDown 1s cubic-bezier(.22,1,.36,1) both;
+    }
+    .letter-hearts-row { font-size:1.4rem; letter-spacing:8px; margin-bottom:36px; animation:floatY 3.5s ease-in-out infinite; }
+    .letter-divider { width:100%; display:flex; align-items:center; gap:14px; margin-bottom:40px; animation:fadeIn 1.2s .4s both; }
+    .letter-divider span { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.5)); }
+    .letter-divider span:last-child { background:linear-gradient(270deg,transparent,rgba(255,255,255,.5)); }
+    .letter-divider em { font-style:normal; font-size:1.3rem; }
+    .letter-card {
+      background:rgba(255,255,255,.17); border:1px solid rgba(255,255,255,.38); border-radius:28px;
+      backdrop-filter:blur(20px) saturate(1.5); padding:48px 44px 52px; width:100%; text-align:left;
+      box-shadow:0 8px 48px rgba(180,50,90,.2),0 1px 0 rgba(255,255,255,.4) inset;
+      animation:fadeIn 1.4s .2s both;
+    }
+    .letter-card p { font-size:clamp(1.02rem,2.5vw,1.2rem); line-height:2; color:rgba(255,255,255,.94); text-shadow:0 1px 4px rgba(120,20,60,.2); margin-bottom:26px; font-style:italic; }
+    .letter-card p:last-child { margin-bottom:0; }
+    .letter-card .highlight { color:var(--gold); font-style:italic; font-weight:600; }
+    .letter-closing { margin-top:36px; text-align:center; font-family:'Dancing Script',cursive; font-size:1.8rem; color:var(--gold); text-shadow:0 1px 8px rgba(200,120,20,.3); animation:floatY 4s ease-in-out infinite; }
+    .letter-back-wrap { margin-top:44px; display:flex; justify-content:center; }
+
+    /* ════ PAGE 4 — CAKE & NOTES ════ */
+    #page-cake {
+      min-height: 100vh;
+      justify-content: flex-start;
+      padding-bottom: 60px;
+    }
+
+    .cake-page-header {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 44px 24px 10px;
+    }
+
+    .cake-page-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(150,30,70,.35), 0 8px 32px rgba(190,50,100,.3);
+      margin-bottom: 6px;
+      animation: fadeDown 1s cubic-bezier(.22,1,.36,1) both;
+    }
+    .cake-page-sub {
+      font-size: .9rem;
+      color: rgba(255,255,255,.65);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 0;
+      animation: fadeIn 1.4s .4s both;
+    }
+
+    /* ── Cake scene ── */
+    .cake-scene {
+      position: relative;
+      width: min(520px, 92vw);
+      aspect-ratio: 1 / 1;
+      margin: 20px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Glow ring behind cake */
+    .cake-glow {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,200,80,.45) 0%, rgba(255,150,100,.2) 50%, transparent 75%);
+      animation: glowPulse 2.2s ease-in-out infinite;
+      z-index: 1;
+    }
+    @keyframes glowPulse {
+      0%,100% { transform: scale(1);   opacity: .7; }
+      50%      { transform: scale(1.3); opacity: 1;  }
+    }
+
+    /* Cake emoji itself */
+    .cake-emoji {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(5.5rem, 15vw, 9rem);
+      line-height: 1;
+      filter: drop-shadow(0 0 24px rgba(255,200,80,.7)) drop-shadow(0 6px 18px rgba(180,50,90,.4));
+      animation: floatY 3s ease-in-out infinite;
+      user-select: none;
+    }
+
+    /* Candle sparkles */
+    .sparks {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .spark {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      animation: sparkle 2.4s ease-in-out infinite;
+    }
+    @keyframes sparkle {
+      0%   { opacity: 0; transform: translate(0,0) scale(1); }
+      20%  { opacity: 1; }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+    }
+
+    /* ── Notes orbiting the cake ── */
+    .notes-ring {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+    }
+
+    .note {
+      position: absolute;
+      width: clamp(110px, 22vw, 148px);
+      background: linear-gradient(135deg, #f9c8dc 0%, #f7a8c4 60%, #f48aae 100%);
+      border: 1.5px solid rgba(255,255,255,.65);
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      box-shadow:
+        0 4px 20px rgba(180,50,90,.28),
+        0 1px 0 rgba(255,255,255,.7) inset,
+        inset 0 -1px 0 rgba(180,50,90,.15);
+      text-align: center;
+      cursor: default;
+      transition: transform .22s ease, box-shadow .22s ease;
+      animation: fadeIn .6s ease both;
+    }
+    .note:hover {
+      transform: translate(var(--tx), var(--ty)) scale(1.08) !important;
+      box-shadow: 0 10px 32px rgba(180,50,90,.38), 0 1px 0 rgba(255,255,255,.7) inset;
+      z-index: 10;
+    }
+
+    /* little pin dot at top */
+    .note::before {
+      content: '';
+      position: absolute;
+      top: -5px; left: 50%; transform: translateX(-50%);
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #e05585;
+      box-shadow: 0 2px 6px rgba(180,40,90,.5);
+    }
+
+    .note-text {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(.9rem, 2.2vw, 1.08rem);
+      font-weight: 700;
+      color: #7a1c3e;
+      line-height: 1.45;
+      text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    /* Position each note around the circle.
+       We use CSS custom props --tx/--ty so hover can reuse them. */
+    .note:nth-child(1) { /* top */
+      top:  2%;  left: 50%;
+      transform: translate(-50%, 0);
+      --tx: -50%; --ty: 0;
+      animation-delay: .05s;
+    }
+    .note:nth-child(2) { /* top-right */
+      top:  22%; right: 1%;
+      transform: translate(0, 0);
+      --tx: 0; --ty: 0;
+      animation-delay: .15s;
+    }
+    .note:nth-child(3) { /* bottom-right */
+      bottom: 8%; right: 3%;
+      transform: translate(0, 0);
+      --tx: 0; --ty: 0;
+      animation-delay: .25s;
+    }
+    .note:nth-child(4) { /* bottom-left */
+      bottom: 8%; left: 3%;
+      transform: translate(0, 0);
+      --tx: 0; --ty: 0;
+      animation-delay: .35s;
+    }
+    .note:nth-child(5) { /* top-left */
+      top:  22%; left: 1%;
+      transform: translate(0, 0);
+      --tx: 0; --ty: 0;
+      animation-delay: .45s;
+    }
+
+    .cake-back-wrap { margin-top: 32px; display: flex; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="bg-blur"></div>
+  <canvas id="petals"></canvas>
+
+  <!-- ══ PAGE 1: Birthday ══ -->
+  <div class="app-page active" id="page-birthday">
+    <div class="sticky-header">
+      <div class="shimmer-line"></div>
+      <h1 class="headline">Happy Birthday<br/>My <em>Rasmalai</em> 🌸</h1>
+    </div>
+    <div class="scroll-body">
+      <div class="scroll-hint">scroll to read<span class="arrow">↓</span></div>
+      <div class="crown">👑</div>
+      <div class="flowers-row">🌺🌸🌼🌸🌺</div>
+      <div class="card">
+        <span class="card-icon">💌</span>
+        <p>Happiest birthday to the prettiest person 🫠💖</p>
+        <p>I hope your lifee is filled with never ending happiness, laughterss, and all the love you deserveeee ✨✨</p>
+        <p>Really blessed to have a person like you 🫶....</p>
+        <p>Wishing that we can spend more time together and create some cute memoriess 💕🧿</p>
+        <p class="signature">Once again happiestt birthdayyyyy 💝💝</p>
+      </div>
+      <div class="hearts">💗 💖 💗 💖 💗</div>
+      <button class="presents-btn" onclick="goTo('page-presents','page-birthday')">🎁 View Presents</button>
+    </div>
+  </div>
+
+  <!-- ══ PAGE 2: Presents ══ -->
+  <div class="app-page" id="page-presents">
+    <div class="presents-header">
+      <div class="shimmer-line"></div>
+      <h2 class="presents-title">Your Presents 🎀</h2>
+      <p class="presents-sub">something special, just for you ✨</p>
+    </div>
+    <div class="presents-grid">
+      <div class="present-card" onclick="goTo('page-letter','page-presents')">
+        <div class="present-emoji">🎁</div>
+        <div class="present-label">Present 1</div>
+        <div class="present-tap">tap to open ✨</div>
+      </div>
+      <div class="present-card" onclick="goTo('page-cake','page-presents')">
+        <div class="present-emoji">🎁</div>
+        <div class="present-label">Present 2</div>
+        <div class="present-tap">tap to open ✨</div>
+      </div>
+    </div>
+    <button class="back-btn" onclick="goBack('page-birthday','page-presents')">← Back</button>
+  </div>
+
+  <!-- ══ PAGE 3: Love Letter ══ -->
+  <div class="app-page" id="page-letter">
+    <div class="letter-top-border"></div>
+    <div class="letter-wrap">
+      <div class="letter-salutation">My Madam ji 💌</div>
+      <div class="letter-hearts-row">💗 💖 🌸 💖 💗</div>
+      <div class="letter-divider"><span></span><em>✦</em><span></span></div>
+      <div class="letter-card">
+        <p>There's no card big enough for everything I'd like to say, so I made you a little garden with a song, our pictures, and a few of my favourite wishes for the year ahead.</p>
+        <p>Thank you for the small and unseen things — the way you check in, the jokes only we get, the quiet patience when I'm being too much. <span class="highlight">I noticed. I still notice.</span></p>
+        <p>I hope today you feel celebrated. I hope you eat something delicious that you didn't have to make, and someone tells you you're loved — <span class="highlight">you are</span> — and I'm always there for you to support you and show you love whenever you need it. 🫶</p>
+      </div>
+      <div class="letter-closing">always yours 💝</div>
+      <div class="letter-back-wrap">
+        <button class="back-btn" onclick="goBack('page-presents','page-letter')">← Back to Presents</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PAGE 4: Cake & Notes ══ -->
+  <div class="app-page" id="page-cake">
+    <div class="cake-page-header">
+      <div class="shimmer-line"></div>
+      <h2 class="cake-page-title">With all my heart 💖</h2>
+      <p class="cake-page-sub">little notes for the birthday girl ✨</p>
+    </div>
+
+    <div class="cake-scene">
+      <!-- Glow behind cake -->
+      <div class="cake-glow"></div>
+
+      <!-- Candle sparkles -->
+      <div class="sparks" id="sparks"></div>
+
+      <!-- Cake -->
+      <div class="cake-emoji">🎂</div>
+
+      <!-- 5 notes in a ring -->
+      <div class="notes-ring">
+        <div class="note">
+          <div class="note-text">I love you sho muchh 💗</div>
+        </div>
+        <div class="note">
+          <div class="note-text">I'm always there for you 🫶</div>
+        </div>
+        <div class="note">
+          <div class="note-text">You are the prettiest girll I've ever seen 🌸</div>
+        </div>
+        <div class="note">
+          <div class="note-text">I love your main char
